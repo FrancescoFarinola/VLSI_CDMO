@@ -12,13 +12,13 @@ array[CIRCUITS] of int: height; % Heights of the circuits
 % *** Additional variables *** - Plate height (variable to minimize)
 % Plate height is between the lower and upper bound which are respectively the max circuit height and the sum of all heights
 var max(height)..sum(height): plate_h; 
-array[CIRCUITS] of var bool : r; 
-array[CIRCUITS] of var int: actual_width = [if r[i] then c_y[i] else c_x[i] endif | i in CIRCUITS];
-array[CIRCUITS] of var int: actual_height = [if r[i] then c_x[i] else c_y[i] endif | i in CIRCUITS];
+array[CIRCUITS] of var bool : rotation; 
+array[CIRCUITS] of var int: actual_width = [if rotation[i] then c_y[i] else c_x[i] endif | i in CIRCUITS];
+array[CIRCUITS] of var int: actual_height = [if rotation[i] then c_x[i] else c_y[i] endif | i in CIRCUITS];
 
 % *** Outputs *** - Coordinates (x,y) for each circuit
-array[CIRCUITS] of var 0..plate_w - 1: c_x;  
-array[CIRCUITS] of var 0..sum(height) - 1: c_y;  
+array[CIRCUITS] of var 0..plate_w - min(width): c_x;  
+array[CIRCUITS] of var 0..sum(height) - - min(height): c_y;  
 
 % ****** Constraints ******
 % *** Reducing domain - Limit each circuit to appear in the board - w/o going outside***
@@ -62,7 +62,7 @@ constraint forall(i in CIRCUITS)(
 
 % Do not rotate squares
 constraint symmetry_breaking_constraint(
-  forall (i in CIRCUITS) (height[i] = width[i] -> r[i] = 0)
+  forall (i in CIRCUITS) (height[i] = width[i] -> rotation[i] = 0)
 );
 
 solve 
