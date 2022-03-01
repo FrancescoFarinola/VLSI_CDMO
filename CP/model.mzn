@@ -18,9 +18,9 @@ array[CIRCUITS] of var 0..plate_w - min(width): c_x;
 array[CIRCUITS] of var 0..sum(height) - min(height): c_y;  
 
 % ****** Constraints ******
-% *** Reducing domain - Limit each circuit to appear in the board - w/o going outside***
-constraint forall(i in CIRCUITS) (c_x[i] <= plate_w - width[i] /\
-                                  c_y[i] <= plate_h - height[i] );
+% *** Implied constraint - Limit each circuit to appear in the board - w/o going outside***
+constraint forall(i in CIRCUITS) (c_x[i] + width[i] <= plate_w /\
+                                  c_y[i] + height[i]<= plate_h );
 
 % *** Globals for no overlapping ***
 constraint diffn(c_x,c_y,width,height);
@@ -61,13 +61,13 @@ solve
 % *** Search integer values with different strategies ***
 %  :: int_search([plate_h], input_order, indomain_min)
 %  :: int_search([plate_h], first_fail, indomain_min)
-  :: int_search([plate_h], dom_w_deg, indomain_min)
-%  :: int_search([plate_h], input_order, indomain_random)
+%  :: int_search([plate_h], dom_w_deg, indomain_min)
+  :: int_search([plate_h], input_order, indomain_random)
 %  :: int_search([plate_h], first_fail, indomain_random)
 %  :: int_search([plate_h], dom_w_deg, indomain_random)
-  % *** Different restart strategies ***
+  % *** Different restart strategies - NB: only for indomain_random ***
 %  :: restart_constant(750)
-%  :: restart_linear(20)
+%  :: restart_linear(100)
 %  :: restart_geometric(1.5, 700)
-  :: restart_luby(250)
+%  :: restart_luby(250)
   minimize plate_h;
