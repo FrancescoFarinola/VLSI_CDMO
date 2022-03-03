@@ -13,8 +13,8 @@ array[CIRCUITS] of int: height; % Heights of the circuits
 % Plate height is between the lower and upper bound which are respectively the max circuit height and the sum of all heights
 var max(height)..sum(height): plate_h; 
 array[CIRCUITS] of var bool : rotation; 
-array[CIRCUITS] of var int: actual_width = [if rotation[i] then height[i] else width[i] endif | i in CIRCUITS];
-array[CIRCUITS] of var int: actual_height = [if rotation[i] then width[i] else height[i] endif | i in CIRCUITS];
+array[CIRCUITS] of var int: real_width = [if rotation[i] then height[i] else width[i] endif | i in CIRCUITS];
+array[CIRCUITS] of var int: real_height = [if rotation[i] then width[i] else height[i] endif | i in CIRCUITS];
 
 % *** Outputs *** - Coordinates (x,y) for each circuit
 array[CIRCUITS] of var 0..plate_w - min(width): c_x;  
@@ -22,13 +22,13 @@ array[CIRCUITS] of var 0..sum(height) - min(height): c_y;
 
 % ****** Constraints ******
 % *** Reducing domain - Limit each circuit to appear in the board - w/o going outside***
-constraint forall(i in CIRCUITS) (c_x[i] + actual_width[i] <= plate_w /\
-                                  c_y[i] + actual_height[i] <= plate_h);
+constraint forall(i in CIRCUITS) (c_x[i] + real_width[i] <= plate_w /\
+                                  c_y[i] + real_height[i] <= plate_h);
 
 % *** Globals for no overlapping ***
-constraint diffn(c_x,c_y,actual_width,actual_height);
-constraint cumulative(c_x, actual_width, actual_height, plate_h);
-constraint cumulative(c_y, actual_height, actual_width, plate_w);
+constraint diffn(c_x,c_y,real_width,real_height);
+constraint cumulative(c_x, real_width, real_height, plate_h);
+constraint cumulative(c_y, real_height, real_width, plate_w);
 
 % Give precedence to circuits with same size
 constraint symmetry_breaking_constraint(
@@ -56,8 +56,13 @@ constraint symmetry_breaking_constraint(
 
 % Forces circuits to be adjacent
 constraint forall(i in CIRCUITS)(
-    member([0] ++ [actual_width[j] + c_x[j] | j in CIRCUITS where j != i], c_x[i]) /\
-    member([0] ++ [actual_height[j] + c_y[j] | j in CIRCUITS where j != i], c_y[i])
+    member([0] ++ [real_width[j] + c_x[j] | j in CIRCUITS where j != i], c_x[i]) /\
+    member([0] ++ [real_height[j] + c_y[j] | j in CIRCUITS where j != i], c_y[i])
+);
+
+% Do not rotate circuits whose height is greater than the actual maximum plate width
+constraint forall(i in CIRCUITS)(
+    height[i] > plate_w -> rotation[i] = 0
 );
 
 % Do not rotate squares
@@ -65,7 +70,8 @@ constraint symmetry_breaking_constraint(
   forall (i in CIRCUITS) (height[i] = width[i] -> rotation[i] = 0)
 );
 
-% Do not rotate if rotated sizes are the same of another circuit
+
+% Do not rotate both circuits if rotated sizes are the same of another circuit
 constraint forall(i in CIRCUITS)(
     forall(j in CIRCUITS where j!=i)(
         if width[i] = height[j] /\ height[i] = width[j]
@@ -79,8 +85,8 @@ constraint forall(i in CIRCUITS)(
 
 solve
 % *** Search integer values with different strategies ***
-  :: int_search([plate_h], input_order, indomain_min, complete)
-%  :: int_search([plate_h], first_fail, indomain_min)
+%  :: int_search([plate_h], input_order, indomain_min, complete)
+  :: int_search([plate_h], first_fail, indomain_min)
 %  :: int_search([plate_h], dom_w_deg, indomain_min, complete)
 %  :: int_search([plate_h], input_order, indomain_random)
 %  :: int_search([plate_h], first_fail, indomain_random)
@@ -89,6 +95,6 @@ solve
 %  :: restart_constant(750)
 %  :: restart_linear(20)
 %  :: restart_geometric(1.5, 700)
-  :: restart_luby(500)
+%  :: restart_luby(500)
 
   minimize plate_h;

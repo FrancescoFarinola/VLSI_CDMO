@@ -37,11 +37,13 @@ if __name__ == '__main__':
     model = Model(model)
     gecode = Solver.lookup("gecode")
 
-    times = []
+    times = {}
     solved = []
     not_solved = []
     non_optimal = []
     out_paths = []
+    failures = {}
+    objectives = []
     for i in input_files:
         instance_n = re.findall(r'\d+', i)[0]
         plate_w, n, widths, heights = input.read_instance(i)
@@ -50,8 +52,8 @@ if __name__ == '__main__':
         instance["n"] = n
         instance["width"] = widths
         instance["height"] = heights
-        result = instance.solve(timeout=datetime.timedelta(seconds=args.timeout))
-        if result.status is Status.OPTIMAL_SOLUTION or Status.SATISFIED:
+        result = instance.solve(timeout=datetime.timedelta(seconds=int(args.timeout)))
+        if result.status is Status.OPTIMAL_SOLUTION or result.solution is not None:
             print("Problem {0} solved in {1}s".format(i, result.statistics['time'].total_seconds()))
             out_file = output.write_output_file(args.output, i, result, instance, args.rotation)
             chip, circuits = output.load_solution(out_file)
@@ -61,14 +63,17 @@ if __name__ == '__main__':
                 else:
                     title = "Instance {0}".format(instance_n)
                 output.plot_grid(chip, circuits, title, i)
-            times.append(result.statistics['time'].total_seconds())
+            times[instance_n] = result.statistics['time'].total_seconds()
             solved.append(instance_n)
-            if result.status is Status.SATISFIED:
+            objectives.append(result.objective)
+            if result.status is not Status.OPTIMAL_SOLUTION:
                 non_optimal.append(instance_n)
-        elif result.status is Status.UNKNOWN:
+        else:
             print("Problem {0} not solved within the time limit {1}".format(i, args.timeout))
             not_solved.append(instance_n)
-    mean_time = round(sum(times)/len(times), 4)
-    print("Solved instances: {0} - Total ({1}/{2})\nExecution times (in seconds): {3}\n"
-          "Mean time: {4}\nNot solved: {5}\nNon optimal: {6}"
-          "".format(solved, len(solved), len(input_files), times, mean_time, not_solved, non_optimal))
+        failures[instance_n] = result.statistics["failures"]
+    if len(times) != 0:
+        mean_time = round(sum(times.values())/len(times), 4)
+        print("Solved instances: {0} - Total ({1}/{2})\nExecution times (in seconds): {3}\n"
+              "Mean time: {4}\nNot solved: {5}\nNon optimal: {6}\n Failures: {7}\n Objectives: {8}"
+              "".format(solved, len(solved), len(input_files), times, mean_time, not_solved, non_optimal, failures, objectives))

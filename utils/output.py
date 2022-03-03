@@ -22,7 +22,6 @@ def write_output_file(path, file, result, instance, rotation=False):
 
 def plot_grid(plate, n, plot_title, out_file):
     fig, ax = plt.subplots()
-    #fig.canvas.manager.set_window_title(plot_title)
     ax.set_title(plot_title)
     for idx, (width, height, x, y) in enumerate(n):
         label = "Circuit " + str(idx + 1) + " : " + str(width) + "x" + str(height)

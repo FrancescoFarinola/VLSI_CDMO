@@ -22,7 +22,7 @@ array[CIRCUITS] of var 0..sum(height) - min(height): c_y;
 constraint forall(i in CIRCUITS) (c_x[i] + width[i] <= plate_w /\
                                   c_y[i] + height[i]<= plate_h );
 
-% *** Globals for no overlapping ***
+% *** Globals for no overlapping and redundant (for propagation)***
 constraint diffn(c_x,c_y,width,height);
 constraint cumulative(c_x, width, height, plate_h);
 constraint cumulative(c_y, height, width, plate_w);
@@ -41,7 +41,7 @@ constraint symmetry_breaking_constraint(
 );
 
 % Sort circuits by decreasing area
-array[CIRCUITS] of int : ordered_circuits = sort_by(CIRCUITS, [ - height[i]*width[i] | i in CIRCUITS]); 
+array[CIRCUITS] of int : ordered_circuits = sort_by(CIRCUITS, [ - height[i]*width[i] | i in CIRCUITS]);
 %  *** Always place the biggest circuit at the bottom-left corner ***
 constraint symmetry_breaking_constraint(
   let { 
@@ -51,23 +51,25 @@ constraint symmetry_breaking_constraint(
   lex_less([c_y[i],c_x[i]], [c_y[j],c_x[j]])
 );
 
-% *** Forces circuits to be adjacent ***
+% *** Forces circuits to be adjacent to each other or to the borders [0] ***
 constraint forall(i in CIRCUITS)(
     member([0] ++ [width[j] + c_x[j] | j in CIRCUITS where j != i], c_x[i]) /\
     member([0] ++ [height[j] + c_y[j] | j in CIRCUITS where j != i], c_y[i])
 );
 
-solve 
+solve
+  :: int_search(c_x, first_fail, indomain_min)
+  :: int_search(c_y, first_fail, indomain_min)
 % *** Search integer values with different strategies ***
 %  :: int_search([plate_h], input_order, indomain_min)
 %  :: int_search([plate_h], first_fail, indomain_min)
 %  :: int_search([plate_h], dom_w_deg, indomain_min)
-  :: int_search([plate_h], input_order, indomain_random)
-%  :: int_search([plate_h], first_fail, indomain_random)
+%  :: int_search([plate_h], input_order, indomain_random)
+%  :: int_search([plate_h], first_fail, indomain_median)
 %  :: int_search([plate_h], dom_w_deg, indomain_random)
   % *** Different restart strategies - NB: only for indomain_random ***
-%  :: restart_constant(750)
-%  :: restart_linear(100)
+%  :: restart_constant(500)
+%  :: restart_linear(200)
 %  :: restart_geometric(1.5, 700)
-%  :: restart_luby(250)
+%  :: restart_luby(500)
   minimize plate_h;
