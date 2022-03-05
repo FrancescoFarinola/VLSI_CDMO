@@ -85,9 +85,9 @@ constraint forall(i in CIRCUITS)(
 
 solve
 % *** Search integer values with different strategies ***
-%  :: int_search([plate_h], input_order, indomain_min, complete)
+%  :: int_search([plate_h], input_order, indomain_min)
   :: int_search([plate_h], first_fail, indomain_min)
-%  :: int_search([plate_h], dom_w_deg, indomain_min, complete)
+%  :: int_search([plate_h], dom_w_deg, indomain_min)
 %  :: int_search([plate_h], input_order, indomain_random)
 %  :: int_search([plate_h], first_fail, indomain_random)
 %  :: int_search([plate_h], dom_w_deg, indomain_random)

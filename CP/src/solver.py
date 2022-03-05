@@ -12,13 +12,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--instances', help="Instances to be solved. Can be a list of instances as '1,3,7' or `all`", default="all")
     parser.add_argument('-o', '--output', help="Output directory of the files containing the solutions", default='out')
-    parser.add_argument('-t', '--timeout', help="Timeout for the execution of the solvers in seconds", default=300)
-    parser.add_argument('-r', '--rotation', help="Enables rotation mode", default=False, action='store_true')
+    parser.add_argument('-t', '--timeout', help="Timeout for the execution of the solvers in seconds. Default=300", default=300)
+    parser.add_argument('-r', '--rotation', help="Allow rotation of circuits", default=False, action='store_true')
     parser.add_argument('-p', '--plot', help="Whether to plot the circuits or not - plots of solved instances will be saved in the directory out-img", default=False, action='store_true')
     args = parser.parse_args()
-    print(args)
 
-    path = '../instances/'
+    path = '../../instances/'
     if 'all' in args.instances:
         input_files = [path + i for i in os.listdir(path)]
         #inputs = input.convert_instances(path, input_files)
@@ -59,7 +58,7 @@ if __name__ == '__main__':
             chip, circuits = output.load_solution(out_file)
             if args.plot:
                 if args.rotation:
-                    title = "Instance {0} with rotated circuits".format(instance_n)
+                    title = "Instance {0} with rotated allowed".format(instance_n)
                 else:
                     title = "Instance {0}".format(instance_n)
                 output.plot_grid(chip, circuits, title, i)

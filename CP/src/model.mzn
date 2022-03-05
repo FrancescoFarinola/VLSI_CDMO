@@ -58,18 +58,18 @@ constraint forall(i in CIRCUITS)(
 );
 
 solve
-  :: int_search(c_x, first_fail, indomain_min)
-  :: int_search(c_y, first_fail, indomain_min)
+%  :: int_search(c_x, first_fail, indomain_min)
+%  :: int_search(c_y, first_fail, indomain_min)
 % *** Search integer values with different strategies ***
 %  :: int_search([plate_h], input_order, indomain_min)
 %  :: int_search([plate_h], first_fail, indomain_min)
 %  :: int_search([plate_h], dom_w_deg, indomain_min)
 %  :: int_search([plate_h], input_order, indomain_random)
-%  :: int_search([plate_h], first_fail, indomain_median)
+  :: int_search([plate_h], first_fail, indomain_random)
 %  :: int_search([plate_h], dom_w_deg, indomain_random)
   % *** Different restart strategies - NB: only for indomain_random ***
 %  :: restart_constant(500)
 %  :: restart_linear(200)
-%  :: restart_geometric(1.5, 700)
+  :: restart_geometric(1.5, 700)
 %  :: restart_luby(500)
   minimize plate_h;
