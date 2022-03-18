@@ -1,5 +1,4 @@
 import re
-
 from utils import input, output
 import os
 import sys
