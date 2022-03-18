@@ -24,8 +24,10 @@ if __name__ == '__main__':
         input_files = [path + 'ins-' + i + '.txt' for i in sorted(args.instances.split(','), key=int)]
         #inputs = input.convert_instances(path, input_files)
 
-    if not os.path.isdir(args.output):
-        os.mkdir(args.output)
+    out_dir = "../" + args.output
+
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
 
     if not args.rotation:
         model = 'model.mzn'
@@ -52,8 +54,8 @@ if __name__ == '__main__':
         instance["height"] = heights
         result = instance.solve(timeout=datetime.timedelta(seconds=int(args.timeout)))
         if result.status is Status.OPTIMAL_SOLUTION or result.solution is not None:
-            print("Problem {0} solved in {1}s".format(i, result.statistics['time'].total_seconds()))
-            out_file = output.write_output_file(args.output, i, result, instance, args.rotation)
+            print("Problem {0} solved in {1}s".format(instance_n, result.statistics['time'].total_seconds()))
+            out_file = output.write_output_file(out_dir, i, result, instance, args.rotation)
             chip, circuits = output.load_solution(out_file)
             if args.plot:
                 if args.rotation:
@@ -67,7 +69,7 @@ if __name__ == '__main__':
             if result.status is not Status.OPTIMAL_SOLUTION:
                 non_optimal.append(instance_n)
         else:
-            print("Problem {0} not solved within the time limit {1}".format(i, args.timeout))
+            print("Problem {0} not solved within the time limit {1}".format(instance_n, args.timeout))
             not_solved.append(instance_n)
         failures[instance_n] = result.statistics["failures"]
     if len(times) != 0:
