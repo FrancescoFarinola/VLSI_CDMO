@@ -37,7 +37,7 @@ def plot_grid(plate, n, plot_title, out_file):
     ax.set_xticks(np.arange(plate[0]+1))
     ax.set_yticks(np.arange(plate[1]+1))
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.tight_layout()
+    plt.autoscale(enable=True, axis='y', tight=True)
 
     #Save png plot in the output dir out-img
     path = "out-img/"
