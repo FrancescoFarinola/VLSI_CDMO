@@ -40,7 +40,7 @@ def plot_grid(plate, n, plot_title, out_file):
     plt.autoscale(enable=True, axis='y', tight=True)
 
     #Save png plot in the output dir out-img
-    path = "out-img/"
+    path = "../out-img/"
     if not os.path.isdir(path):
         os.mkdir(path)
     plt.savefig(path + os.path.basename(out_file).replace("txt", "png").replace("ins", "out"))
