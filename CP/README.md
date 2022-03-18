@@ -1,4 +1,4 @@
-#Running the script
+**Running the script**
 
 In order to run the script the following libraries have to be installed:
   - `minizinc` = 0.5.0
